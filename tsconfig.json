@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "ES6", // Or whichever version you prefer
+        "module": "CommonJS",
+        "strict": true,
+        "esModuleInterop": false,
+        "outDir": "./dist"
+    },
+    "include": ["./src"]
+}

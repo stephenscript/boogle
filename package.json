@@ -1,0 +1,15 @@
+{
+    "name": "boogle",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Remove blocking elements from popular job review sites",
+    "main": "src/enhanceSearchResults.js",
+    "scripts": {},
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/chrome": "^0.0.267",
+        "prettier": "^3.2.5",
+        "typescript": "^5.4.5"
+    }
+}
