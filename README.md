@@ -1,25 +1,17 @@
-# Clear Glass
+# Boogle 1.1.0
 
-## The problem
+Improves Google searches by removing distracting elements
 
-- Glassdoor.com and other similar websites now enforce users to both log in and to contribute with posts or ratings in order to access reviews and other content
+## Changelog
 
-## The solution
+### 1.1.0
 
-- The Clear Glass extension removes aggressive tactics to obstruct use of the site
-  
-## Websites included in this extension
+- Removed AI element removal behavior from content script
+- Instead, append &udm=14 to all Google search queries upon navigation to revert Google search to previous behavior
+- Added tab context awareness to extension in order to indicate to user when Boogle is active by changing icon color
+- Updated manifest for additional tab and webNavigation permissions
+- Moved icons and added new -dull 128 size for browser icon toggle behavior
 
-- Glassdoor.com
-- Teamblind.com
-- Repvue.com
+### 1.0.0
 
-## How it works
-
-- Glassdoor.com and other similar websites block access on the client-side, but does not prevent data from being downloaded from their server when a user has not met the criteria to access content. Because of this design, client-side changes done within this extension can bypass these restrictions.
-
-## Limitations
-
-- The nature of this extension being a Chrome extension content script, there is a small delay before access blockers are removed
-- There are some components that require data from the server that is not provided to users who are not logged in. Logging in will be required to access all content.
-- If Glassdoor.com or other websites included in this extension update their user validation in such a way that restricts user access through server-side limitations, this extension will no longer function.
+- Initial release. Remove AI element from Google search results
