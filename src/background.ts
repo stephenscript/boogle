@@ -30,6 +30,13 @@ function getIsGoogleSearch(url: string = '') {
     return url.startsWith('https://www.google.com/search?');
 }
 
+function getHasParam(url: string, key: string, value: string) {
+    const urlObject = new URL(url);
+    const params = new URLSearchParams(urlObject.search);
+
+    return params.has(key, value);
+}
+
 function setIconActive(isActive: boolean) {
     const iconPath = isActive
         ? '../icons/icon128.png'
@@ -47,7 +54,13 @@ function onTabChange(url: string = '') {
         return;
     }
     const isGoogleSearch = getIsGoogleSearch(url || '');
+    const hasParam = getHasParam(url, 'udm', '14');
     setIconActive(isGoogleSearch);
+
+    if (!hasParam) {
+        const updatedUrl = addQueryParam(url, 'udm', '14');
+        setTimeout(() => chrome.tabs.update({ url: updatedUrl }), 100);
+    }
 }
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -98,7 +111,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (type === 'toggle') {
         toggles[item] = !toggles[item];
-        setIconActive(toggles[item]);
         sendResponse(toggles[item]);
 
         chrome.tabs.query(
@@ -106,8 +118,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             function (tabs) {
                 if (tabs.length > 0) {
                     const url = tabs[0].url;
+
                     if (url?.startsWith('https://www.google.com/search?')) {
-                        const updatedUrl = removeQueryParam(url!, 'udm');
+                        setIconActive(toggles[item]);
+                        let updatedUrl = '';
+                        if (!toggles[item]) {
+                            updatedUrl = removeQueryParam(url!, 'udm');
+                        } else {
+                            updatedUrl = addQueryParam(url!, 'udm', '14');
+                        }
                         chrome.tabs.update({ url: updatedUrl });
                     }
                 } else {
@@ -115,15 +134,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                 }
             },
         );
-
-        if (!toggles[item]) {
-            chrome.tabs.getCurrent((tab) => {
-                if (tab?.url?.startsWith('https://www.google.com/search?')) {
-                    const updatedUrl = removeQueryParam(tab?.url!, 'udm');
-                    chrome.tabs.update({ url: updatedUrl });
-                }
-            });
-        }
     }
 
     if (type === 'getToggle') {
