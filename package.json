@@ -1,18 +1,18 @@
 {
-  "name": "boogle",
-  "version": "1.1.1",
-  "type": "module",
-  "description": "Remove blocking elements from popular job review sites",
-  "main": "src/enhanceSearchResults.js",
-  "scripts": {
-    "build": "tsc",
-    "format": "npx prettier --write '**/*.{ts,js,json,html}'"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/chrome": "^0.0.267",
-    "prettier": "3.2.5",
-    "typescript": "^5.4.5"
-  }
+    "name": "boogle",
+    "version": "1.1.1",
+    "type": "module",
+    "description": "Remove blocking elements from popular job review sites",
+    "main": "src/enhanceSearchResults.js",
+    "scripts": {
+        "build": "tsc",
+        "format": "npx prettier --write '**/*.{ts,js,json,html}'"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/chrome": "^0.0.267",
+        "prettier": "3.2.5",
+        "typescript": "^5.4.5"
+    }
 }

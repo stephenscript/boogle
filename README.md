@@ -4,6 +4,10 @@ Improves Google searches by removing distracting elements
 
 ## Changelog
 
+### 1.1.1
+
+- Updated behavior to only add &udm=14 param if no udm param is already present to prevent forceful redirect from images, etc.
+
 ### 1.1.0
 
 - Removed AI element removal behavior from content script
