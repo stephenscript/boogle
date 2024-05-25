@@ -50,16 +50,16 @@ function setIconActive(isActive: boolean) {
 }
 
 function onTabChange(url: string = '') {
-    if (!toggles['udm14']) {
+    if (!toggles['udm14'] || !url) {
         return;
     }
-    const isGoogleSearch = getIsGoogleSearch(url || '');
-    const hasParam = getHasParam(url || '', 'udm', '14');
+    const isGoogleSearch = getIsGoogleSearch(url);
+    const hasParam = getHasParam(url, 'udm', '14');
     setIconActive(isGoogleSearch);
 
     if (!hasParam) {
         const updatedUrl = addQueryParam(url, 'udm', '14');
-        setTimeout(() => chrome.tabs.update({ url: updatedUrl }), 100);
+        // setTimeout(() => chrome.tabs.update({ url: updatedUrl }), 100);
     }
 }
 
