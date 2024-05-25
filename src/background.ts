@@ -54,7 +54,7 @@ function onTabChange(url: string = '') {
         return;
     }
     const isGoogleSearch = getIsGoogleSearch(url || '');
-    const hasParam = getHasParam(url, 'udm', '14');
+    const hasParam = getHasParam(url || '', 'udm', '14');
     setIconActive(isGoogleSearch);
 
     if (!hasParam) {
