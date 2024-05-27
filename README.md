@@ -1,4 +1,4 @@
-# Boogle 1.1.0
+# Boogle
 
 Improves Google searches by removing distracting elements
 
@@ -6,7 +6,9 @@ Improves Google searches by removing distracting elements
 
 ### 1.1.1
 
-- Updated behavior to only add &udm=14 param if no udm param is already present to prevent forceful redirect from images, etc.
+- Updated extension behavior to only add &udm=14 param if no udm param is already present to prevent forceful redirects from images, etc.
+- Improved consistency of icon activation graphic change and reduced risk of redirects when not intended
+- Added toggle to enable or disable extension
 
 ### 1.1.0
 
