@@ -4,6 +4,11 @@ Improves Google searches by removing distracting elements
 
 ## Changelog
 
+### 1.1.2
+
+- Updated description of app in package.json
+- Resolved premature rerouting and subsequent UI flashing by removing use of onWebNavigation listener
+
 ### 1.1.1
 
 - Updated extension behavior to only add &udm=14 param if no udm param is already present to prevent forceful redirects from images, etc.
