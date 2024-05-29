@@ -84,21 +84,18 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     onTabChange(tab.url, tab.id!);
-});
 
-// Listen for the onBeforeNavigate event
-chrome.webNavigation.onCommitted.addListener((details) => {
     if (!toggles['udm14']) {
         return;
     }
 
-    const isGoogleSearch = browser.getIsGoogleSearch(details.url);
+    const isGoogleSearch = browser.getIsGoogleSearch(tab.url);
 
     if (!isGoogleSearch) {
         return;
     }
 
-    const urlObject = new URL(details.url);
+    const urlObject = new URL(tab.url!);
     const params = new URLSearchParams(urlObject.search);
 
     // Add query parameter only if not present
@@ -107,13 +104,34 @@ chrome.webNavigation.onCommitted.addListener((details) => {
     }
 
     // Append &udm=14 to all Google searches
-    const updatedUrl = browser.addQueryParam(details.url, 'udm', '14');
+    const updatedUrl = browser.addQueryParam(tab.url!, 'udm', '14');
 
     // Redirect to the modified URL
-    if (updatedUrl !== details.url) {
-        browser.tabs.add(details.tabId);
-        chrome.tabs.update(details.tabId, { url: updatedUrl });
+    if (updatedUrl !== tab.url!) {
+        chrome.tabs.update(tab.id!, { url: updatedUrl });
     }
+});
+
+chrome.webNavigation.onCreatedNavigationTarget.addListener((details) => {
+    // if (!toggles['udm14']) {
+    //     return;
+    // }
+    // const isGoogleSearch = browser.getIsGoogleSearch(details.url);
+    // if (!isGoogleSearch) {
+    //     return;
+    // }
+    // const urlObject = new URL(details.url);
+    // const params = new URLSearchParams(urlObject.search);
+    // // Add query parameter only if not present
+    // if (params.get('udm')) {
+    //     return;
+    // }
+    // // Append &udm=14 to all Google searches
+    // const updatedUrl = browser.addQueryParam(details.url, 'udm', '14');
+    // // Redirect to the modified URL
+    // if (updatedUrl !== details.url) {
+    //     chrome.tabs.update(details.tabId, { url: updatedUrl });
+    // }
 });
 
 // === From popup.ts ===
@@ -149,7 +167,6 @@ chrome.runtime.onMessage.addListener(function (
                                 '14',
                             );
                         }
-
                         chrome.tabs.update({ url: updatedUrl });
                     }
                 } else {
