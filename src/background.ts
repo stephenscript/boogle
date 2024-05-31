@@ -78,60 +78,46 @@ function onTabChange(url: string = '', tabId: number) {
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
     chrome.tabs.get(activeInfo.tabId, function (tab) {
-        onTabChange(tab.url, tab.id!);
+        onTabChange(tab.url, activeInfo.tabId);
     });
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    onTabChange(tab.url, tab.id!);
-
-    if (!toggles['udm14']) {
+    if (!tab.id) {
         return;
     }
 
-    const isGoogleSearch = browser.getIsGoogleSearch(tab.url);
-
-    if (!isGoogleSearch) {
-        return;
-    }
-
-    const urlObject = new URL(tab.url!);
-    const params = new URLSearchParams(urlObject.search);
-
-    // Add query parameter only if not present
-    if (params.get('udm')) {
-        return;
-    }
-
-    // Append &udm=14 to all Google searches
-    const updatedUrl = browser.addQueryParam(tab.url!, 'udm', '14');
-
-    // Redirect to the modified URL
-    if (updatedUrl !== tab.url!) {
-        chrome.tabs.update(tab.id!, { url: updatedUrl });
-    }
+    onTabChange(tab.url, tab.id);
 });
 
-chrome.webNavigation.onCreatedNavigationTarget.addListener((details) => {
-    // if (!toggles['udm14']) {
-    //     return;
-    // }
-    // const isGoogleSearch = browser.getIsGoogleSearch(details.url);
-    // if (!isGoogleSearch) {
-    //     return;
-    // }
-    // const urlObject = new URL(details.url);
-    // const params = new URLSearchParams(urlObject.search);
-    // // Add query parameter only if not present
-    // if (params.get('udm')) {
-    //     return;
-    // }
-    // // Append &udm=14 to all Google searches
-    // const updatedUrl = browser.addQueryParam(details.url, 'udm', '14');
-    // // Redirect to the modified URL
-    // if (updatedUrl !== details.url) {
-    //     chrome.tabs.update(details.tabId, { url: updatedUrl });
-    // }
+chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+    if (details.frameId === 0) {
+        if (!toggles['udm14']) {
+            return;
+        }
+
+        const isGoogleSearch = browser.getIsGoogleSearch(details.url);
+
+        if (!isGoogleSearch) {
+            return;
+        }
+
+        const urlObject = new URL(details.url);
+        const params = new URLSearchParams(urlObject.search);
+
+        // Add query parameter only if not present
+        if (params.get('udm')) {
+            return;
+        }
+
+        // Append &udm=14 to all Google searches
+        const updatedUrl = browser.addQueryParam(details.url, 'udm', '14');
+
+        // Redirect to the modified URL
+        if (updatedUrl !== details.url) {
+            chrome.tabs.update(details.tabId, { url: updatedUrl });
+        }
+    }
 });
 
 // === From popup.ts ===
@@ -159,10 +145,10 @@ chrome.runtime.onMessage.addListener(function (
                         icon.toggleActive(toggles[item]);
                         let updatedUrl = '';
                         if (!toggles[item]) {
-                            updatedUrl = browser.removeQueryParam(url!, 'udm');
+                            updatedUrl = browser.removeQueryParam(url, 'udm');
                         } else {
                             updatedUrl = browser.addQueryParam(
-                                url!,
+                                url,
                                 'udm',
                                 '14',
                             );
