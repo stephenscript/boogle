@@ -4,6 +4,10 @@ Improves Google searches by removing distracting elements
 
 ## Changelog
 
+### 1.1.3
+
+- Fixed a bug where UI would flash on some searches, particularly when searching from Google homepage
+
 ### 1.1.2
 
 - Updated description of app in package.json
