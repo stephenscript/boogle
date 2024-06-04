@@ -87,7 +87,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         return;
     }
 
-    onTabChange(tab.url, tab.id);
+    chrome.tabs.query(
+        { active: true, windowId: tab.windowId },
+        (activeTabs) => {
+            if (activeTabs.length > 0 && activeTabs[0].id === tabId) {
+                onTabChange(tab.url, tabId);
+            }
+        },
+    );
 });
 
 chrome.webNavigation.onBeforeNavigate.addListener((details) => {

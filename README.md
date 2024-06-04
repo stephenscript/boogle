@@ -4,6 +4,10 @@ Improves Google searches by removing distracting elements
 
 ## Changelog
 
+### 1.1.4
+
+- Fixed a bug where icon indicator will dim when a new non-Google Search tab is opened and not currently focused
+
 ### 1.1.3
 
 - Fixed a bug where UI would flash on some searches, particularly when searching from Google homepage
