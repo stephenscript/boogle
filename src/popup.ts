@@ -11,7 +11,6 @@ const mount = () => {
             },
         },
         function (response) {
-            console.log('response', response);
             const enabled = response;
             input = document.querySelector('input#udm14') as HTMLInputElement;
             input?.addEventListener('click', () => toggle('udm14'));

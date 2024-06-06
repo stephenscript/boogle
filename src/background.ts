@@ -1,3 +1,5 @@
+// === Classes ===
+
 class Icon {
     public isActive: boolean;
 
@@ -62,13 +64,72 @@ class Browser {
         return urlObject.toString();
     };
 }
+class Settings {
+    public config: { [key: string]: boolean };
+    constructor() {
+        // default values
+        this.config = {
+            udm14: true,
+        };
+    }
+
+    private saveSettings = () => {
+        chrome.storage.sync.set(this.config, () => {
+            console.log('Boogle settings saved: ', this.config);
+        });
+    };
+
+    private loadSettings = () => {
+        chrome.storage.sync.get(null, (config) => {
+            if (config && Object.keys(config).length > 0) {
+                this.config = config;
+                console.log('Boogle settings loaded: ', this.config);
+            } else {
+                console.log('Initial load. Boogle settings set as default.');
+            }
+        });
+    };
+
+    private clearSettings = () => {
+        chrome.storage.sync.clear(function () {
+            if (chrome.runtime.lastError) {
+                console.error(
+                    'Error clearing settings:',
+                    chrome.runtime.lastError,
+                );
+            } else {
+                console.log('All Boogle settings cleared.');
+            }
+        });
+    };
+
+    public set(key: string, value: any) {
+        this.config[key] = value;
+        this.saveSettings();
+    }
+
+    public toggle(key: string) {
+        this.config[key] = !this.config[key];
+        this.saveSettings();
+    }
+
+    public initialize = () => {
+        this.loadSettings();
+    };
+}
+
+// === Initialize app ===
 
 const icon = new Icon();
 const browser = new Browser();
-const toggles: { [key: string]: boolean } = { udm14: true };
+const settings = new Settings();
+settings.initialize();
+icon.isActive = settings.config['udm'];
+
+// === Listeners ===
 
 function onTabChange(url: string = '', tabId: number) {
-    if (!toggles['udm14']) {
+    if (!settings.config['udm14']) {
         return;
     }
 
@@ -99,7 +160,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 chrome.webNavigation.onBeforeNavigate.addListener((details) => {
     if (details.frameId === 0) {
-        if (!toggles['udm14']) {
+        if (!settings.config['udm14']) {
             return;
         }
 
@@ -139,8 +200,8 @@ chrome.runtime.onMessage.addListener(function (
     const item = message.data.item;
 
     if (type === 'toggle') {
-        toggles[item] = !toggles[item];
-        sendResponse(toggles[item]);
+        settings.toggle(item);
+        sendResponse(settings.config[item]);
 
         chrome.tabs.query(
             { active: true, currentWindow: true },
@@ -149,9 +210,9 @@ chrome.runtime.onMessage.addListener(function (
                     const url = tabs[0].url;
 
                     if (url?.startsWith('https://www.google.com/search?')) {
-                        icon.toggleActive(toggles[item]);
+                        icon.toggleActive(settings.config[item]);
                         let updatedUrl = '';
-                        if (!toggles[item]) {
+                        if (!settings.config[item]) {
                             updatedUrl = browser.removeQueryParam(url, 'udm');
                         } else {
                             updatedUrl = browser.addQueryParam(
@@ -170,6 +231,6 @@ chrome.runtime.onMessage.addListener(function (
     }
 
     if (type === 'getToggle') {
-        sendResponse(toggles[item]);
+        sendResponse(settings.config[item]);
     }
 });

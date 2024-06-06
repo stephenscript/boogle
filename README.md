@@ -4,6 +4,11 @@ Improves Google searches by removing distracting elements
 
 ## Changelog
 
+### 1.1.5
+
+- Fixed a bug where the extension would switch to 'Enabled' after state was lost from window change or other causes.
+- Added storage permission to better manage user preference state
+
 ### 1.1.4
 
 - Fixed a bug where icon indicator will dim when a new non-Google Search tab is opened and not currently focused

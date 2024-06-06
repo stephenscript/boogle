@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Boogle",
     "description": "Improve search results on Google",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "action": {
         "default_popup": "splash.html",
         "default_icon": "icons/icon128-dull.png"
@@ -13,7 +13,7 @@
         "48": "icons/icon48.png",
         "128": "icons/icon128.png"
     },
-    "permissions": ["webNavigation", "tabs"],
+    "permissions": ["webNavigation", "tabs", "storage"],
     "background": {
         "service_worker": "dist/background.js"
     },
