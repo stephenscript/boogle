@@ -6,8 +6,9 @@ Improves Google searches by removing distracting elements
 
 ### 1.1.5
 
-- Fixed a bug where the extension would switch to 'Enabled' after state was lost from window change or other causes.
 - Added storage permission to better manage user preference state
+- Using chrome storage, fixed a bug where the extension would switch to 'Enabled' after state was lost from window change or other causes
+- Added functionality for udm=14 query param to be removed from tab on refresh if Boogle is not set to 'Enabled'
 
 ### 1.1.4
 
