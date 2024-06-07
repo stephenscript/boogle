@@ -85,7 +85,7 @@ class Boogle {
         if (isLoaded) {
             console.log('Boogle loaded.');
         } else {
-            console.log('Boogle failed to load.');
+            // console.log('Boogle failed to load.');
         }
     };
 

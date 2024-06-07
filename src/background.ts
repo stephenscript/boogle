@@ -103,134 +103,154 @@ class Settings {
         });
     };
 
-    public set(key: string, value: any) {
+    public set = (key: string, value: any) => {
         this.config[key] = value;
         this.saveSettings();
-    }
+    };
 
-    public toggle(key: string) {
+    public toggle = (key: string) => {
         this.config[key] = !this.config[key];
         this.saveSettings();
-    }
+    };
 
     public initialize = () => {
         this.loadSettings();
     };
 }
 
-// === Initialize app ===
+const main = () => {
+    // === Initialize app ===
+    const icon = new Icon();
+    const browser = new Browser();
+    const settings = new Settings();
+    settings.initialize();
+    icon.isActive = settings.config['udm'];
 
-const icon = new Icon();
-const browser = new Browser();
-const settings = new Settings();
-settings.initialize();
-icon.isActive = settings.config['udm'];
+    // === Listeners ===
 
-// === Listeners ===
-
-function onTabChange(url: string = '', tabId: number) {
-    if (!settings.config['udm14']) {
-        return;
-    }
-
-    const isGoogleSearch = browser.getIsGoogleSearch(url);
-    icon.toggleActive(isGoogleSearch);
-}
-
-chrome.tabs.onActivated.addListener((activeInfo) => {
-    chrome.tabs.get(activeInfo.tabId, function (tab) {
-        onTabChange(tab.url, activeInfo.tabId);
-    });
-});
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (!tab.id) {
-        return;
-    }
-
-    chrome.tabs.query(
-        { active: true, windowId: tab.windowId },
-        (activeTabs) => {
-            if (activeTabs.length > 0 && activeTabs[0].id === tabId) {
-                onTabChange(tab.url, tabId);
-            }
-        },
-    );
-});
-
-chrome.webNavigation.onBeforeNavigate.addListener((details) => {
-    if (details.frameId === 0) {
+    function onTabChange(url: string = '', tabId: number) {
         if (!settings.config['udm14']) {
             return;
         }
 
-        const isGoogleSearch = browser.getIsGoogleSearch(details.url);
-
-        if (!isGoogleSearch) {
-            return;
-        }
-
-        const urlObject = new URL(details.url);
-        const params = new URLSearchParams(urlObject.search);
-
-        // Add query parameter only if not present
-        if (params.get('udm')) {
-            return;
-        }
-
-        // Append &udm=14 to all Google searches
-        const updatedUrl = browser.addQueryParam(details.url, 'udm', '14');
-
-        // Redirect to the modified URL
-        if (updatedUrl !== details.url) {
-            chrome.tabs.update(details.tabId, { url: updatedUrl });
-        }
+        const isGoogleSearch = browser.getIsGoogleSearch(url);
+        icon.toggleActive(isGoogleSearch);
     }
-});
 
-// === From popup.ts ===
+    chrome.tabs.onActivated.addListener((activeInfo) => {
+        chrome.tabs.get(activeInfo.tabId, function (tab) {
+            onTabChange(tab.url, activeInfo.tabId);
+        });
+    });
 
-// Add an event listener for messages from the popup
-chrome.runtime.onMessage.addListener(function (
-    message: { data: { type: string; item: string } },
-    sender,
-    sendResponse,
-) {
-    const type = message.data.type;
-    const item = message.data.item;
-
-    if (type === 'toggle') {
-        settings.toggle(item);
-        sendResponse(settings.config[item]);
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        if (!tab.id) {
+            return;
+        }
 
         chrome.tabs.query(
-            { active: true, currentWindow: true },
-            function (tabs) {
-                if (tabs.length > 0) {
-                    const url = tabs[0].url;
-
-                    if (url?.startsWith('https://www.google.com/search?')) {
-                        icon.toggleActive(settings.config[item]);
-                        let updatedUrl = '';
-                        if (!settings.config[item]) {
-                            updatedUrl = browser.removeQueryParam(url, 'udm');
-                        } else {
-                            updatedUrl = browser.addQueryParam(
-                                url,
-                                'udm',
-                                '14',
-                            );
-                        }
-                        chrome.tabs.update({ url: updatedUrl });
-                    }
-                } else {
-                    console.error('Unable to get current tab.');
+            { active: true, windowId: tab.windowId },
+            (activeTabs) => {
+                if (activeTabs.length > 0 && activeTabs[0].id === tabId) {
+                    onTabChange(tab.url, tabId);
                 }
             },
         );
-    }
+    });
 
-    if (type === 'getToggle') {
-        sendResponse(settings.config[item]);
-    }
-});
+    chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+        if (details.frameId === 0) {
+            const isGoogleSearch = browser.getIsGoogleSearch(details.url);
+
+            if (!isGoogleSearch) {
+                return;
+            }
+
+            const urlObject = new URL(details.url);
+            const params = new URLSearchParams(urlObject.search);
+
+            // Boogle is OFF and site IS NOT udm enabled
+            if (!settings.config['udm14'] && !params.get('udm')) {
+                return;
+            }
+
+            // Boogle is OFF and site IS not udm enabled
+            if (!settings.config['udm14'] && params.get('udm')) {
+                const updatedUrl = browser.removeQueryParam(details.url, 'udm');
+
+                // Redirect to the modified URL
+                if (updatedUrl !== details.url) {
+                    chrome.tabs.update(details.tabId, { url: updatedUrl });
+                }
+                return;
+            }
+
+            // Boogle is ON but site IS udm enabled
+            if (params.get('udm')) {
+                return;
+            }
+
+            // Boogle is ON and site IS NOT udm enabled
+            // Append &udm=14 to all Google searches
+            const updatedUrl = browser.addQueryParam(details.url, 'udm', '14');
+
+            // Redirect to the modified URL
+            if (updatedUrl !== details.url) {
+                chrome.tabs.update(details.tabId, { url: updatedUrl });
+            }
+        }
+    });
+
+    // === From popup.ts ===
+
+    // Add an event listener for messages from the popup
+    chrome.runtime.onMessage.addListener(function (
+        message: { data: { type: string; item: string } },
+        sender,
+        sendResponse,
+    ) {
+        const type = message.data.type;
+        const item = message.data.item;
+
+        if (type === 'toggle') {
+            console.log('Boogle toggled.');
+            settings.toggle(item);
+            sendResponse(settings.config[item]);
+
+            chrome.tabs.query(
+                { active: true, currentWindow: true },
+                function (tabs) {
+                    if (tabs.length > 0) {
+                        const url = tabs[0].url;
+
+                        if (url?.startsWith('https://www.google.com/search?')) {
+                            icon.toggleActive(settings.config[item]);
+                            let updatedUrl = '';
+                            if (!settings.config[item]) {
+                                updatedUrl = browser.removeQueryParam(
+                                    url,
+                                    'udm',
+                                );
+                            } else {
+                                updatedUrl = browser.addQueryParam(
+                                    url,
+                                    'udm',
+                                    '14',
+                                );
+                            }
+                            chrome.tabs.update({ url: updatedUrl });
+                        }
+                    } else {
+                        console.error('Unable to get current tab.');
+                    }
+                },
+            );
+        }
+
+        if (type === 'getToggle') {
+            sendResponse(settings.config[item]);
+        }
+    });
+};
+
+main();
